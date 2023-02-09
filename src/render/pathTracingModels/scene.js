@@ -1,28 +1,13 @@
 import * as ti from 'taichi.js/dist/taichi'
 
-
-
-
-
 export let Sphere = ti.types.struct({
     center: ti.types.vector(ti.f32, 3),
     radius: ti.f32,
     material: ti.i32,
     color: ti.types.vector(ti.f32, 3),
 })
+
 export let objects = ti.field(Sphere, 10)
-objects.fromArray([
-    { center: [0.0, 5.4, -1.0], radius: 3.0, material: 0, color: [10, 10, 10] },
-    { center: [0, -100.5, -1], radius: 100.0, material: 1, color: [0.8, 0.8, 0.8] },
-    { center: [0, 102.5, -1], radius: 100.0, material: 1, color: [0.8, 0.8, 0.8] },
-    { center: [0, 1, 101], radius: 100.0, material: 1, color: [0.8, 0.8, 0.8] },
-    { center: [-101.5, 0, -1], radius: 100.0, material: 1, color: [0.6, 0.0, 0.0] },
-    { center: [101.5, 0, -1], radius: 100.0, material: 1, color: [0.0, 0.6, 0.0] },
-    { center: [0, -0.2, -1.5], radius: 0.3, material: 1, color: [0.8, 0.3, 0.3] },
-    { center: [-0.8, 0.2, -1], radius: 0.7, material: 2, color: [0.6, 0.8, 0.8] },
-    { center: [0.7, 0, -0.5], radius: 0.5, material: 3, color: [1.0, 1.0, 1.0] },
-    { center: [0.6, -0.3, -2.0], radius: 0.2, material: 4, color: [0.8, 0.6, 0.2] },
-])
 
 export let hit_sphere = ti.func((ray, sphere, t_min, t_max) => {
     let oc = ray.origin - sphere.center;
@@ -101,7 +86,23 @@ export let ray_at = (ray, t) => {
     return ray.origin + t * ray.direction
 }
 
-export let setupScene = () => {
+export let setupScene = (brightness) => {
+    objects.fromArray([
+        { center: [0.0, 5.4, -1.0], radius: 3.0, material: 0, color: [brightness, brightness, brightness] },
+        { center: [0, -100.5, -1], radius: 100.0, material: 2, color: [0.1, 0.1, 0.1] },
+        { center: [0, 102.5, -1], radius: 100.0, material: 1, color: [0.8, 0.8, 0.8] },
+        { center: [0, 1, 101], radius: 100.0, material: 1, color: [0.8, 0.8, 0.8] },
+        { center: [-101.5, 0, -1], radius: 100.0, material: 2, color: [0.8, 0.5, 0.5] },
+        { center: [101.5, 0, -1], radius: 100.0, material: 1, color: [0.0, 0.6, 0.0] },
+        // Fuzz Metal
+        { center: [-0.8, 0.2, -1], radius: 0.7, material: 4, color: [0.6, 0.8, 0.8] },
+        // Glass
+        { center: [0.7, 0, -0.5], radius: 0.5, material: 3, color: [1.0, 1.0, 1.0] },
+        // Metal
+        { center: [0, -0.2, -1.5], radius: 0.3, material: 2, color: [0.8, 0.3, 0.3] },
+        // Diffuse
+        { center: [0.6, -0.3, -2.0], radius: 0.2, material: 1, color: [0.8, 0.6, 0.2] },
+    ])
     ti.addToKernelScope({
         objects,
         hit_sphere,
