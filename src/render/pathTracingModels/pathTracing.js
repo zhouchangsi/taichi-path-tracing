@@ -1,10 +1,10 @@
 import * as ti from "taichi.js/dist/taichi";
-import { get_camera_ray, setupCamera } from "./pathTracingModels/camera";
-import { hit_objects, setupScene } from "./pathTracingModels/scene";
+import { get_camera_ray, setupCamera } from "./camera";
+import { hit_objects, setupScene } from "./scene";
 
 let cancelID
 
-export const colorOnly = async (options) => {
+export const pathTracing = async (options) => {
     cancelAnimationFrame(cancelID)
     console.log(options);
     await ti.init();

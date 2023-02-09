@@ -1,5 +1,4 @@
-import { colorOnly } from "./src";
-import { fractal3D } from "./src/render/fractal3D";
+import {pathTracing} from "./src/render/pathTracingModels/pathTracing";
 import addWebGPUTrialToken from "./src/addWebGPUTrialToken";
 import "./src/index.css"
 
@@ -8,7 +7,7 @@ const options = {
     brightness: 10,
     size: 300
 }
-colorOnly(options)
+pathTracing(options)
 
 const addOptionInput = (option, default_value, min = 0, max = default_value * 2) => {
     const input = document.createElement("input")
@@ -23,7 +22,7 @@ const addOptionInput = (option, default_value, min = 0, max = default_value * 2)
     input.oninput = function () {
         options[option] = Number.parseFloat(this.value)
         show.innerText = option + ': ' + this.value
-        colorOnly(options)
+        pathTracing(options)
     }
     const body = document.body
     const wrapper = document.createElement("div")
