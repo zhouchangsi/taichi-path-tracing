@@ -79,72 +79,75 @@ export const pathTracing = async (options) => {
                 10e8
             );
 
-            if (result.is_hit) {
-                if (result.material === 0) {
-                    color_buffer = result.color * brightness;
+            if (!result.is_hit) {
+                break;
+            }
+
+            if (result.material === 0) {
+                color_buffer = result.color * brightness;
+                break;
+            }
+            else if (result.material === 1) {
+                let target = result.hit_point + result.hit_point_normal;
+                if (sample_on_unit_sphere_surface) {
+                    target += random_unit_vector();
+                } else {
+                    target += random_in_unit_sphere();
+                }
+                scattered_direction = target - result.hit_point;
+                scattered_origin = result.hit_point;
+                brightness *= result.color;
+            }
+            else if (result.material === 2 || result.material === 4) {
+                let fuzz = 0;
+                if (result.material === 4) {
+                    fuzz = 2;
+                }
+                scattered_direction = reflect(
+                    scattered_direction.normalized(),
+                    result.hit_point_normal
+                );
+                if (sample_on_unit_sphere_surface) {
+                    scattered_direction += fuzz * random_unit_vector();
+                } else {
+                    scattered_direction += fuzz * random_in_unit_sphere();
+                }
+                scattered_origin = result.hit_point;
+                if (scattered_direction.dot(result.hit_point_normal) < 0) {
                     break;
                 } else {
-                    if (result.material === 1) {
-                        let target = result.hit_point + result.hit_point_normal;
-                        if (sample_on_unit_sphere_surface) {
-                            target += random_unit_vector();
-                        } else {
-                            target += random_in_unit_sphere();
-                        }
-                        scattered_direction = target - result.hit_point;
-                        scattered_origin = result.hit_point;
-                        brightness *= result.color;
-                    } else if (result.material === 2 || result.material === 4) {
-                        let fuzz = 0;
-                        if (result.material === 4) {
-                            fuzz = 2;
-                        }
-                        scattered_direction = reflect(
-                            scattered_direction.normalized(),
-                            result.hit_point_normal
-                        );
-                        if (sample_on_unit_sphere_surface) {
-                            scattered_direction += fuzz * random_unit_vector();
-                        } else {
-                            scattered_direction += fuzz * random_in_unit_sphere();
-                        }
-                        scattered_origin = result.hit_point;
-                        if (scattered_direction.dot(result.hit_point_normal) < 0) {
-                            break;
-                        } else {
-                            brightness *= result.color;
-                        }
-                    } else if (result.material == 3) {
-                        let refraction_ratio = 1.5;
-                        if (result.front_face) {
-                            refraction_ratio = 1 / refraction_ratio;
-                        }
-                        let cos_theta = min(
-                            -scattered_direction.normalized().dot(result.hit_point_normal),
-                            1.0
-                        );
-                        let sin_theta = sqrt(1 - cos_theta * cos_theta);
-                        if (
-                            refraction_ratio * sin_theta > 1.0 ||
-                            reflectance(cos_theta, refraction_ratio) > ti.random()
-                        ) {
-                            scattered_direction = reflect(
-                                scattered_direction.normalized(),
-                                result.hit_point_normal
-                            );
-                        } else {
-                            scattered_direction = refract(
-                                scattered_direction.normalized(),
-                                result.hit_point_normal,
-                                refraction_ratio
-                            );
-                        }
-                        scattered_origin = result.hit_point;
-                        brightness *= result.color;
-                    }
-                    brightness /= p_RR;
+                    brightness *= result.color;
                 }
             }
+            else if (result.material == 3) {
+                let refraction_ratio = 1.5;
+                if (result.front_face) {
+                    refraction_ratio = 1 / refraction_ratio;
+                }
+                let cos_theta = min(
+                    -scattered_direction.normalized().dot(result.hit_point_normal),
+                    1.0
+                );
+                let sin_theta = sqrt(1 - cos_theta * cos_theta);
+                if (
+                    refraction_ratio * sin_theta > 1.0 ||
+                    reflectance(cos_theta, refraction_ratio) > ti.random()
+                ) {
+                    scattered_direction = reflect(
+                        scattered_direction.normalized(),
+                        result.hit_point_normal
+                    );
+                } else {
+                    scattered_direction = refract(
+                        scattered_direction.normalized(),
+                        result.hit_point_normal,
+                        refraction_ratio
+                    );
+                }
+                scattered_origin = result.hit_point;
+                brightness *= result.color;
+            }
+            brightness /= p_RR;
             n += 1;
         }
 
